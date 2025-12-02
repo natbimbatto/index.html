@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Controle Financeiro — Na</title>
+    <style>
+         :root {
+            --baby-blue: #bfe9ff;
+            --accent: #7cc9f2;
+            --muted: #6b6b6b;
+            --bg: #f7fbff;
+            --card: #ffffff;
+            --danger: #ff6b6b;
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, var(--bg), #eef9ff 60%);
+            padding: 24px;
+            color: #243044
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto
+        }
+        
+        header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px
+        }
+        
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: var(--baby-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #034f70
+        }
+        
+        h1 {
+            font-size: 20px;
+            margin: 0
+        }
+        
+        p.lead {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 18px
+        }
+        
+        @media(max-width:880px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start
+            }
+        }
+        
+        .card {
+            background: var(--card);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(12, 34, 56, 0.06)
+        }
+        
+        form.row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+        
+        input,
+        select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e5eef6;
+            background: transparent;
+            font-size: 14px
+        }
+        
+        input[type=number] {
+            width: 140px
+        }
+        
+        input[type=date] {
+            width: 160px
+        }
+        
+        .btn {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 0;
+            cursor: pointer
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid #e6f3fb
+        }
+        
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px
+        }
+        
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px
+        }
+        
+        th {
+            color: var(--muted);
+            font-weight: 600
+        }
+        
+        .amount.in {
+            color: green;
+            font-weight: 700
+        }
+        
+        .amount.out {
+            color: var(--danger);
+            font-weight: 700
+        }
+        
+        .summary {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px
+        }
+        
+        .summary .box {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(191, 233, 255, 0.4), rgba(124, 201, 242, 0.1));
+            text-align: center
+        }
+        
+        .summary .value {
+            font-size: 20px;
+            font-weight: 700
+        }
+        
+        .muted {
+            color: var(--muted);
+            font-size: 13px
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px
+        }
+        
+        .small {
+            font-size: 12px;
+            padding: 8px 10px
+        }
+        
+        .empty {
+            padding: 28px;
+            text-align: center;
+            color: var(--muted)
+        }
+        /* tiny responsive table */
+        
+        @media(max-width:640px) {
+            th:nth-child(3),
+            td:nth-child(3) {
+                display: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo"><img src="finança.jpg" alt="Logo" style="max-width: 65px; height: 65px; border-radius: 15px;"></div>
+            <div>
+                <h1>Controle Financeiro</h1>
+                <p class="lead">Registre entradas e saídas com datas e veja o resultado final — tudo no seu navegador.</p>
+            </div>
+        </header>
+
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <h3>Registrar movimentação</h3>
+                    <form id="form" class="row" onsubmit="return false">
+                        <input id="desc" placeholder="Descrição (ex: conta luz)" required />
+                        <select id="type">
+              <option value="in">Entrada</option>
+              <option value="out">Saída</option>
+            </select>
+                        <input id="amount" type="number" step="0.01" placeholder="Valor (R$)" required />
+                        <input id="date" type="date" required />
+                        <button id="addBtn" class="btn btn-primary">Adicionar</button>
+                        <button id="clearForm" class="btn btn-ghost">Limpar</button>
+                    </form>
+
+                    <div style="margin-top:14px;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+                        <div class="controls">
+                            <label class="muted">Filtrar</label>
+                            <input id="filterFrom" type="date" />
+                            <input id="filterTo" type="date" />
+                            <button id="applyFilter" class="small btn btn-ghost">Aplicar</button>
+                            <button id="resetFilter" class="small btn btn-ghost">Limpar filtro</button>
+                        </div>
+                        <div class="actions">
+                            <button id="exportCSV" class="small btn">Exportar CSV</button>
+                            <button id="downloadJSON" class="small btn">Salvar .json</button>
+                            <button id="clearAll" class="small btn">Limpar tudo</button>
+                        </div>
+                    </div>
+
+                    <div id="tableWrap"></div>
+                </div>
+
+                <div class="card" style="margin-top:12px">
+                    <h3>Resumo</h3>
+                    <div class="summary">
+                        <div class="box">
+                            <div class="muted">Total Entradas</div>
+                            <div id="totalIn" class="value">R$ 0,00</div>
+                        </div>
+                        <div class="box">
+                            <div class="muted">Total Saídas</div>
+                            <div id="totalOut" class="value">R$ 0,00</div>
+                        </div>
+                        <div class="box">
+                            <div class="muted">Saldo</div>
+                            <div id="balance" class="value">R$ 0,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside>
+                <div class="card">
+                    <h3>Visão rápida</h3>
+                    <p class="muted">Gráfico de entradas x saídas (últimos 30 dias) e estatísticas.</p>
+                    <canvas id="miniChart" width="320" height="160" style="width:100%;height:120px;margin-top:12px;border-radius:8px;background:#fff"></canvas>
+
+                    <div style="margin-top:14px">
+                        <p class="muted">Dicas:</p>
+                        <ul>
+                            <li>Use categoria na descrição: ex: "Salário - Empresa X"</li>
+                            <li>Marque datas de vencimento para acompanhar pagamentos futuros.</li>
+                            <li>Faça backup com "Salvar .json" regularmente.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:12px">
+                    <h3>Ações rápidas</h3>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                        <button id="todayBtn" class="btn btn-primary">Adicionar com data de hoje</button>
+                        <button id="importJSON" class="btn btn-ghost">Importar .json</button>
+                        <input id="fileInput" type="file" accept="application/json" style="display:none" />
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // LocalStorage key
+        const STORAGE_KEY = 'controle_financeiro_na_v1';
+
+        // Utils
+        const qs = sel => document.querySelector(sel);
+        const formatBRL = n => {
+            const v = Number(n) || 0;
+            return v.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+        }
+
+        // App state
+        let entries = [];
+        let filter = {
+            from: null,
+            to: null
+        };
+
+        // Load
+        function load() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                entries = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                entries = []
+            }
+        }
+
+        function save() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        }
+
+        // DOM refs
+        const form = qs('#form');
+        const desc = qs('#desc');
+        const type = qs('#type');
+        const amount = qs('#amount');
+        const dateEl = qs('#date');
+        const tableWrap = qs('#tableWrap');
+
+        function renderTable() {
+            const filtered = entries.filter(it => {
+                if (filter.from && new Date(it.date) < new Date(filter.from)) return false;
+                if (filter.to && new Date(it.date) > new Date(filter.to)) return false;
+                return true;
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (filtered.length === 0) {
+                tableWrap.innerHTML = '<div class="empty">Nenhuma movimentação encontrada.</div>';
+                updateSummary();
+                drawChart();
+                return;
+            }
+
+            let html = '<table><thead><tr><th>Descrição</th><th>Data</th><th>Obs</th><th>Valor</th><th></th></tr></thead><tbody>';
+            for (const e of filtered) {
+                html += `<tr data-id="${e.id}">`;
+                html += `<td>${escapeHtml(e.desc)}</td>`;
+                html += `<td>${(new Date(e.date)).toLocaleDateString('pt-BR')}</td>`;
+                html += `<td class="muted">${e.type === 'in' ? 'Entrada' : 'Saída'}</td>`;
+                html += `<td class="amount ${e.type}">${formatBRL(e.amount)}</td>`;
+                html += `<td><button class="small btn" data-action="edit">Editar</button> <button class="small btn" data-action="del">Apagar</button></td>`;
+                html += `</tr>`;
+            }
+            html += '</tbody></table>';
+            tableWrap.innerHTML = html;
+
+            tableWrap.querySelectorAll('button[data-action]').forEach(b => {
+                b.addEventListener('click', e => {
+                    const tr = b.closest('tr');
+                    const id = tr.dataset.id;
+                    if (b.dataset.action === 'del') removeEntry(id);
+                    if (b.dataset.action === 'edit') startEdit(id);
+                })
+            })
+
+            updateSummary();
+            drawChart();
+        }
+
+        function updateSummary() {
+            let totalIn = 0,
+                totalOut = 0;
+            const filtered = entries.filter(it => {
+                if (filter.from && new Date(it.date) < new Date(filter.from)) return false;
+                if (filter.to && new Date(it.date) > new Date(filter.to)) return false;
+                return true;
+            });
+            for (const e of filtered) {
+                if (e.type === 'in') totalIn += Number(e.amount);
+                else totalOut += Number(e.amount);
+            }
+            qs('#totalIn').textContent = formatBRL(totalIn);
+            qs('#totalOut').textContent = formatBRL(totalOut);
+            qs('#balance').textContent = formatBRL(totalIn - totalOut);
+        }
+
+        function addEntry(o) {
+            entries.push(o);
+            save();
+            renderTable();
+        }
+
+        function removeEntry(id) {
+            if (!confirm('Apagar essa movimentação?')) return;
+            entries = entries.filter(e => e.id !== id);
+            save();
+            renderTable();
+        }
+
+        function startEdit(id) {
+            const e = entries.find(x => x.id === id);
+            if (!e) return;
+            desc.value = e.desc;
+            type.value = e.type;
+            amount.value = e.amount;
+            dateEl.value = e.date;
+
+            // change add button into save
+            const addBtn = qs('#addBtn');
+            addBtn.textContent = 'Salvar alterações';
+            addBtn.dataset.editing = id;
+        }
+
+        function applyEdit(id) {
+            const e = entries.find(x => x.id === id);
+            if (!e) return;
+            e.desc = desc.value.trim();
+            e.type = type.value;
+            e.amount = parseFloat(amount.value);
+            e.date = dateEl.value;
+            save();
+            qs('#addBtn').textContent = 'Adicionar';
+            delete qs('#addBtn').dataset.editing;
+            renderTable();
+        }
+
+        // helpers
+        function uid() {
+            return Math.random().toString(36).slice(2, 9)
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // Chart: very simple time-series summary for last 30 days
+        function drawChart() {
+            const canvas = qs('#miniChart');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // prepare days
+            const days = [];
+            const today = new Date();
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                days.push({
+                    label: d.toLocaleDateString('pt-BR'),
+                    in: 0,
+                    out: 0
+                });
+            }
+            for (const e of entries) {
+                const eDate = new Date(e.date);
+                const diff = Math.floor((today - eDate) / (1000 * 60 * 60 * 24));
+                if (diff >= 0 && diff < 30) {
+                    const idx = 29 - diff;
+                    if (e.type === 'in') days[idx].in += Number(e.amount);
+                    else days[idx].out += Number(e.amount);
+                }
+            }
+
+            // scale
+            const max = Math.max(...days.map(d => Math.max(d.in, d.out)), 1);
+            const w = canvas.width;
+            const h = canvas.height;
+            const pad = 20;
+            const barW = (w - pad * 2) / days.length;
+
+            // draw axes lines
+            ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+            ctx.beginPath();
+            ctx.moveTo(pad, pad);
+            ctx.lineTo(pad, h - pad);
+            ctx.lineTo(w - pad, h - pad);
+            ctx.stroke();
+
+            // draw bars: in above, out below baseline
+            for (let i = 0; i < days.length; i++) {
+                const x = pad + i * barW + barW * 0.15;
+                const inH = (days[i].in / max) * (h - pad * 2);
+                const outH = (days[i].out / max) * (h - pad * 2);
+
+                // entrada
+                ctx.fillStyle = 'rgba(28,129,191,0.9)';
+                ctx.fillRect(x, h - pad - inH, barW * 0.33, inH);
+                // saída
+                ctx.fillStyle = 'rgba(255,107,107,0.9)';
+                ctx.fillRect(x + barW * 0.36, h - pad - outH, barW * 0.33, outH);
+            }
+        }
+
+        // CSV export
+        function exportCSV() {
+            const header = ['id,descricao,tipo,data,valor'];
+            const rows = entries.map(e => [e.id, '"' + String(e.desc).replace(/"/g, '""') + '"', e.type, e.date, e.amount].join(','));
+            const csv = header.concat(rows).join('\n');
+            const blob = new Blob([csv], {
+                type: 'text/csv;charset=utf-8;'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'controle_financeiro.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // JSON download
+        function downloadJSON() {
+            const blob = new Blob([JSON.stringify(entries, null, 2)], {
+                type: 'application/json'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'controle_financeiro.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // import JSON
+        function importJSONFile(file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        // merge gently, avoid id collisions
+                        const existingIds = new Set(entries.map(x => x.id));
+                        for (const it of data) {
+                            if (!it.id) it.id = uid();
+                            while (existingIds.has(it.id)) it.id = uid();
+                            existingIds.add(it.id);
+                            entries.push(it);
+                        }
+                        save();
+                        renderTable();
+                        alert('Importado com sucesso.');
+                    } else alert('Arquivo inválido. Deve ser um array de objetos.');
+                } catch (err) {
+                    alert('Erro ao ler arquivo: ' + err.message)
+                }
+            }
+            reader.readAsText(file);
+        }
+
+        // events
+        qs('#addBtn').addEventListener('click', () => {
+            const editing = qs('#addBtn').dataset.editing;
+            if (editing) {
+                applyEdit(editing);
+                clearInputs();
+                return;
+            }
+            const d = desc.value.trim();
+            const a = parseFloat(amount.value);
+            const dt = dateEl.value;
+            if (!d || isNaN(a) || !dt) {
+                alert('Preencha todos os campos corretamente.');
+                return;
+            }
+            addEntry({
+                id: uid(),
+                desc: d,
+                type: type.value,
+                amount: a,
+                date: dt
+            });
+            clearInputs();
+        });
+
+        qs('#clearForm').addEventListener('click', () => {
+            clearInputs()
+        });
+        qs('#clearAll').addEventListener('click', () => {
+            if (confirm('Apagar TODOS os dados?')) {
+                entries = [];
+                save();
+                renderTable();
+            }
+        });
+        qs('#exportCSV').addEventListener('click', exportCSV);
+        qs('#downloadJSON').addEventListener('click', downloadJSON);
+        qs('#applyFilter').addEventListener('click', () => {
+            filter.from = qs('#filterFrom').value || null;
+            filter.to = qs('#filterTo').value || null;
+            renderTable();
+        });
+        qs('#resetFilter').addEventListener('click', () => {
+            filter = {
+                from: null,
+                to: null
+            };
+            qs('#filterFrom').value = '';
+            qs('#filterTo').value = '';
+            renderTable();
+        });
+
+        qs('#todayBtn').addEventListener('click', () => {
+            dateEl.value = (new Date()).toISOString().slice(0, 10);
+        });
+        qs('#importJSON').addEventListener('click', () => qs('#fileInput').click());
+        qs('#fileInput').addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) importJSONFile(e.target.files[0]);
+            e.target.value = '';
+        });
+
+        function clearInputs() {
+            desc.value = '';
+            amount.value = '';
+            dateEl.value = '';
+            type.value = 'out';
+            qs('#addBtn').textContent = 'Adicionar';
+            delete qs('#addBtn').dataset.editing;
+        }
+
+        // initial
+        load();
+        renderTable();
+
+        // expose small helpers for debugging (optional)
+        window._cf = {
+            entries,
+            save,
+            load,
+            renderTable
+        };
+    </script>
+</body>
+
+</html>
